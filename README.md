@@ -51,7 +51,7 @@ curl -s http://10.200.50.10/ | grep -iE 'TODO|subnet|admin|password' | head -20
 
 **Result:** Developer comment exposed OT subnet (10.200.10.0/24), port 502, and credentials (admin / Meridian2024!) — zero packets to the OT network.
 
-![Appendix A — OSINT](screenshots/appendix-a-osint.png)
+![Appendix A — OSINT](appendix-a-osint.png)
 *Appendix A: Developer HTML comment reveals OT subnet, Modbus port, and plaintext credentials.*
 
 ---
@@ -66,7 +66,7 @@ curl -sv http://10.200.50.10/remote.html 2>&1 | head -60
 
 **Result:** Server nginx/1.27.5. OT (10.200.10.0/24), Control Center (10.200.20.0/24), Plant DMZ (10.200.30.0/24) confirmed in HTML comments.
 
-![Appendix B — Remote HTML](screenshots/appendix-b-remote-curl.png)
+![Appendix B — Remote HTML](appendix-b-remote-curl.png)
 *Appendix B: curl verbose output showing server version and network details from HTML comments.*
 
 ---
@@ -81,7 +81,7 @@ for sub in www remote vpn mail ot scada plc hmi; do echo -n "$sub: "; dig +short
 
 **Result:** www and remote resolve to 10.200.50.10. OT subdomains return no records. The firewall misconfiguration makes the OT subnet directly accessible regardless.
 
-![Appendix C — DNS](screenshots/appendix-c-dns.png)
+![Appendix C — DNS](appendix-c-dns.png)
 *Appendix C: DNS enumeration. OT-related subdomains return empty but systems remain reachable due to missing firewall rules.*
 
 ---
@@ -98,7 +98,7 @@ nmap -T4 -Pn --host-timeout 2s -p 502,20000,4840,102,2404 --open 10.200.10.0/24
 
 **Result:** PLC at 10.200.10.10 with `502/tcp open mbap`. No authentication required to connect.
 
-![Appendix D — Nmap](screenshots/appendix-d-nmap.png)
+![Appendix D — Nmap](appendix-d-nmap.png)
 *Appendix D: Nmap scan results. Three hosts respond with port 502 open including primary PLC at 10.200.10.10.*
 
 ---
@@ -120,7 +120,7 @@ python3 /root/Desktop/Attack_Scripts/read_coils.py
 - HR2 `outlet_flow` = 120 L/min
 - System balanced: inflow equals outflow
 
-![Appendix E — Baseline](screenshots/appendix-e-baseline.png)
+![Appendix E — Baseline](appendix-e-baseline.png)
 *Appendix E: read_coils.py output. All coils documented. Tank at 500 cm, flows balanced at 120 L/min.*
 
 ---
@@ -137,7 +137,7 @@ python3 /root/Desktop/Attack_Scripts/write_coil.py
 
 **Result:** Script prints `ATTACK COMPLETE`. FC05 write ACK'd instantly. Tank hit 1000 cm (100%) OVERFLOW.
 
-![Appendix F — Attack](screenshots/appendix-f-attack.png)
+![Appendix F — Attack](appendix-f-attack.png)
 *Appendix F: write_coil.py output. FC05 acknowledged. Tank reached overflow threshold. No authentication required.*
 
 ---
@@ -146,7 +146,7 @@ python3 /root/Desktop/Attack_Scripts/write_coil.py
 
 Switched to the defender perspective. OTForge Monitor panel shows live Suricata and Zeek alerts. Grafana ICS Lab Overview dashboard aggregates all ICS alert data.
 
-![Appendix G — Monitor Panel](screenshots/appendix-g-monitor.png)
+![Appendix G — Monitor Panel](appendix-g-monitor.png)
 *Appendix G: OTForge Monitor panel (Zeek tab). 146 log entries. Canvas shows Water Tank in overflow, outlet valve pipe red.*
 
 **Suricata alerts fired:**
@@ -155,7 +155,7 @@ Switched to the defender perspective. OTForge Monitor panel shows live Suricata 
 
 **Zeek logged:** Modbus connection records showing source 10.200.60.10 writing to 10.200.10.10:502 with FC05 function code.
 
-![Appendix H — Grafana](screenshots/appendix-h-grafana.png)
+![Appendix H — Grafana](appendix-h-grafana.png)
 *Appendix H: Grafana ICS Lab Overview. 530 total alerts. Three categories: Detection of Network Scan, Attempted Information Leak, Generic Protocol Command Decode.*
 
 ---
@@ -171,7 +171,7 @@ Accessed OpenPLC IDE at `http://localhost:18080` (credentials: openplc/openplc).
 - `outlet_flow` — 0 (no drainage)
 - `inlet_flow` — 120 (still flowing in)
 
-![Appendix I — OpenPLC During Attack](screenshots/appendix-i-openplc-attack.png)
+![Appendix I — OpenPLC During Attack](appendix-i-openplc-attack.png)
 *Appendix I: OpenPLC Monitoring during attack. valve_open shows red FALSE. tank_level at maximum 1000. outlet_flow = 0.*
 
 ---
@@ -186,10 +186,10 @@ python3 /root/Desktop/Attack_Scripts/write_coil.py --restore
 
 **Result:** Coil 1 written to TRUE. Outlet valve reopened. Outlet flow returned to 120 L/min. Tank level stabilized. Inlet pump untouched.
 
-![Appendix J — Restore Output](screenshots/appendix-j-restore.png)
+![Appendix J — Restore Output](appendix-j-restore.png)
 *Appendix J: --restore command output. FC05 write ACK'd. System confirms balanced flow.*
 
-![Appendix K — OpenPLC Post-Restore](screenshots/appendix-k-openplc-restored.png)
+![Appendix K — OpenPLC Post-Restore](appendix-k-openplc-restored.png)
 *Appendix K: OpenPLC Monitoring after restore. pump_run and valve_open both GREEN TRUE. outlet_flow = 120, matching inlet.*
 
 ---
